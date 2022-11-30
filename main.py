@@ -1,15 +1,15 @@
 import time
+import threading
 from kivy.clock import mainthread
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-from src.point import generate_new_random_point_list, generate_random_route
-from src.point import route_length
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.graphics import Rectangle, Color, Line
-import threading
-import numpy as np
 from kivy.core.window import Window
+import numpy as np
+from src.point import route_length
+from src.point import generate_new_random_point_list, generate_random_route
 
 
 class MainWindow(BoxLayout):
@@ -38,13 +38,15 @@ class TSPApp(App):
         return self.main_window
 
     @staticmethod
-    def stop_app(*args):
+    def stop_app():
+        """ stops app """
         TSPApp.stopping = True
 
     def bruteforce_solving(self, points, starting_point: int = 0, current_route=None, sleep: float = 0, starter=True):
+        """ Bruteforce solver """
         if len(points) < 2:
             self.draw_points(points)
-            return
+            return None
         if current_route is None:
             current_route = [points[starting_point]]
         if len(current_route) == len(points):
@@ -55,7 +57,7 @@ class TSPApp(App):
                 TSPApp.best_route_length = cr_length
             self.clear_canvas()
             self.draw_best_route()
-            self.draw_routes(current_route, a=0.5)
+            self.draw_routes(current_route, alpha=0.5)
             self.draw_points(current_route[:-1])
             self.draw_best_route_length()
             time.sleep(sleep)
@@ -85,34 +87,35 @@ class TSPApp(App):
         return min_route, min_distance
 
     def genetic_solving(self, points, mutation_chance=0.05, reset_chance=0.1, sleep=0.01):
+        """ Genetic solver """
         TSPApp.generation = 0
         route = generate_random_route(points)
         TSPApp.best_route = route
         TSPApp.best_route_length = route_length(route)
         while not TSPApp.stopping:
-            i = 0
-            while i < len(route) - 1 and not TSPApp.stopping:
-                j = 0
-                while j < len(route) - 1 and not TSPApp.stopping:
-                    if i != j:
+            var_i = 0
+            while var_i < len(route) - 1 and not TSPApp.stopping:
+                var_j = 0
+                while var_j < len(route) - 1 and not TSPApp.stopping:
+                    if var_i != var_j:
 
                         copy_of_route = route[:-1].copy()
                         new_route = []
                         index = 0
-                        if j < i:
-                            b = j
-                            e = i
+                        if var_j < var_i:
+                            var_b = var_j
+                            var_e = var_i
                         else:
-                            e = j
-                            b = i
-                        while index < b:
+                            var_e = var_j
+                            var_b = var_i
+                        while index < var_b:
                             new_route.append(copy_of_route[index])
                             index += 1
-                        index = e
-                        while index >= b:
+                        index = var_e
+                        while index >= var_b:
                             new_route.append(copy_of_route[index])
                             index -= 1
-                        index = e + 1
+                        index = var_e + 1
                         while index < len(copy_of_route):
                             new_route.append(copy_of_route[index])
                             index += 1
@@ -130,7 +133,7 @@ class TSPApp(App):
                             TSPApp.generation += 1
                             self.clear_canvas()
                             self.draw_best_route()
-                            self.draw_routes(route, a=0.5)
+                            self.draw_routes(route, alpha=0.5)
                             self.draw_points(route[:-1])
                             self.draw_best_route_length()
                             time.sleep(sleep)
@@ -138,55 +141,62 @@ class TSPApp(App):
                             route = TSPApp.best_route.copy()
                             self.main_window.ids.last_action.text = "Route reseted"
                             time.sleep(sleep)
-                    j = j + 1
-                i = i + 1
+                    var_j = var_j + 1
+                var_i = var_i + 1
         TSPApp.can_run = True
 
     @mainthread
     def clear_canvas(self):
+        """ Clears canvas """
         time.sleep(0.008)
         self.main_window.ids.canvas_layout.canvas.clear()
 
     @mainthread
-    def print_new_point(self, x: int = 0, y: int = 0, size=13, r=0.0, g=0.1, b=0.0, a=1.0):
+    def print_new_point(self, var_x: int = 0, var_y: int = 0, size=13, red=0.0, green=0.1, blue=0.0, alpha=1.0):
+        """ draws a single point """
         center_x = int(self.main_window.ids.canvas_layout.size[0] / 2 - size / 2)
         center_y = int(self.main_window.ids.canvas_layout.size[1] / 2 - size / 2)
         with self.main_window.ids.canvas_layout.canvas:
             Rectangle(
-                pos=(center_x + x, center_y + y),
+                pos=(center_x + var_x, center_y + var_y),
                 size=(size, size),
-                color=Color(r, g, b, a)
+                color=Color(red, green, blue, alpha)
             )
             Color(0, 0, 0, 1)
 
     @mainthread
-    def draw_points(self, points, size=13, r=0.0, g=0.7, b=0.1, a=1.0):
-        for p in points:
-            self.print_new_point(p.var_x, p.var_y, size, r, g, b, a)
+    def draw_points(self, points, size=13, red=0.0, green=0.7, blue=0.1, alpha=1.0):
+        """ draws points """
+        for point in points:
+            self.print_new_point(point.var_x, point.var_y, size, red, green, blue, alpha)
+
     @mainthread
-    def draw_routes(self, points, width=1.3, r=0.0, g=0.25, b=1.0, a=1.0):
+    def draw_routes(self, points, width=1.3, red=0.0, green=0.25, blue=1.0, alpha=1.0):
+        """ draws route """
         coords = []
         center_x = int(self.main_window.ids.canvas_layout.size[0] / 2)
         center_y = int(self.main_window.ids.canvas_layout.size[1] / 2)
-        for p in points:
-            coords.append(center_x + p.var_x)
-            coords.append(center_y + p.var_y)
+        for point in points:
+            coords.append(center_x + point.var_x)
+            coords.append(center_y + point.var_y)
         with self.main_window.ids.canvas_layout.canvas:
             Line(
                 points=coords,
                 width=width,
-                color=Color(r, g, b, a)
+                color=Color(red, green, blue, alpha)
             )
             Color(0, 0, 0, 1)
 
     def draw_best_route(self, clear_canvas=False, draw_points=False):
+        """ Draws best route to canvas """
         if clear_canvas:
             self.clear_canvas()
-        self.draw_routes(TSPApp.best_route, r=0.8, g=0.5, b=0)
+        self.draw_routes(TSPApp.best_route, red=0.8, green=0.5, blue=0)
         if draw_points:
             self.draw_points(TSPApp.best_route)
 
     def start_solving(self):
+        """ Starts solving """
         if TSPApp.can_run:
             self.main_window.ids.canvas_layout.canvas.clear()
             if not self.set_sleep_interval():
@@ -249,10 +259,10 @@ class TSPApp(App):
             TSPApp.best_route = None
             TSPApp.best_route_length = None
 
-            x = int(self.main_window.ids.canvas_layout.size[0] / 2) - 20
-            y = int(self.main_window.ids.canvas_layout.size[1] / 2) - 20
+            var_x = int(self.main_window.ids.canvas_layout.size[0] / 2) - 20
+            var_y = int(self.main_window.ids.canvas_layout.size[1] / 2) - 20
             if self.main_window.ids.keep_points.state == "normal" or TSPApp.points is None:
-                TSPApp.points = generate_new_random_point_list(-x, x, -y, y - 30, TSPApp.number_of_points)
+                TSPApp.points = generate_new_random_point_list(-var_x, var_x, -var_y, var_y - 30, TSPApp.number_of_points)
             if TSPApp.method_is_bruteforce:
                 TSPApp.thread = threading.Thread(
                     target=(lambda: self.bruteforce_solving(
@@ -272,6 +282,7 @@ class TSPApp(App):
             TSPApp.thread.start()
 
     def stop_solving(self):
+        """ Stops the solving thread """
         TSPApp.stopping = True
         while TSPApp.can_run is False:
             pass
@@ -284,6 +295,7 @@ class TSPApp(App):
         self.main_window.ids.last_action.text = ""
 
     def set_sleep_interval(self):
+        """ Sets sleep interval """
         try:
             number = float(self.main_window.ids.sleep_interval_text_input.text)
             if number <= 0:
@@ -294,6 +306,7 @@ class TSPApp(App):
             return False
 
     def set_number_of_points(self):
+        """ Sets number of points """
         try:
             number = int(self.main_window.ids.number_of_points_text_input.text)
             if number <= 0:
@@ -304,17 +317,17 @@ class TSPApp(App):
             return False
 
     def set_method_bruteforce(self):
+        """ Sets button state """
         self.main_window.ids.bruteforce_method.state = "down"
         TSPApp.method_is_bruteforce = True
-        pass
 
     def set_method_genetic(self):
-        self.main_window.ids.number_of_points_text_input
+        """ Sets button state """
         self.main_window.ids.genetic_method.state = "down"
         TSPApp.method_is_bruteforce = False
-        pass
 
     def set_mutation_chance(self):
+        """ Sets mutation chance """
         try:
             number = float(self.main_window.ids.mutation_chance_text_input.text)
             if number < 0 or number > 1:
@@ -325,6 +338,7 @@ class TSPApp(App):
             return False
 
     def set_reset_chance(self):
+        """ Sets reset chance """
         try:
             number = float(self.main_window.ids.reset_chance_text_input.text)
             if number < 0 or number > 1:
@@ -335,11 +349,14 @@ class TSPApp(App):
             return False
 
     def draw_best_route_length(self):
+        """ Changes best route label """
         self.main_window.ids.shortest_route_length_label.text = "Shortest route length: {:.5f}".format(TSPApp.best_route_length)
-
 
 
 Builder.load_file("kv_files/tsp_visualisation.kv")
 app = TSPApp()
 app.title = "Traveling salesman problem visualisation"
-app.run()
+try:
+    app.run()
+except TypeError:
+    pass
