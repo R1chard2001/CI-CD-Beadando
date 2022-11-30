@@ -13,6 +13,12 @@ jobs:
 
       - name: Install pylint
         run: pip install pylint
+        
+      - name: Install numpy
+        run: pip install numpy
+        
+      - name: Install kivy
+        run: pip install kivy
 
       - name: Run linter
         run: python3 linter.py
