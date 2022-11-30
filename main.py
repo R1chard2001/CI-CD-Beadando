@@ -162,15 +162,15 @@ class TSPApp(App):
     @mainthread
     def draw_points(self, points, size=13, r=0.0, g=0.7, b=0.1, a=1.0):
         for p in points:
-            self.print_new_point(p.x, p.y, size, r, g, b, a)
+            self.print_new_point(p.var_x, p.var_y, size, r, g, b, a)
     @mainthread
     def draw_routes(self, points, width=1.3, r=0.0, g=0.25, b=1.0, a=1.0):
         coords = []
         center_x = int(self.main_window.ids.canvas_layout.size[0] / 2)
         center_y = int(self.main_window.ids.canvas_layout.size[1] / 2)
         for p in points:
-            coords.append(center_x + p.x)
-            coords.append(center_y + p.y)
+            coords.append(center_x + p.var_x)
+            coords.append(center_y + p.var_y)
         with self.main_window.ids.canvas_layout.canvas:
             Line(
                 points=coords,
