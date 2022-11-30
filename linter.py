@@ -1,7 +1,7 @@
 import sys
 from pylint import lint
 THRESHOLD = 8
-run = lint.Run(["main.py", "./src/point.py", "./src/tsp.py"], do_exit=False)
+run = lint.Run(["main.py", "./src/point.py"], do_exit=False)
 score = run.linter.stats.global_note
 if score < THRESHOLD:
     print("Linter failed: Score < threshold value")

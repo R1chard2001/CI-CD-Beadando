@@ -1,0 +1,129 @@
+<MainWindow>:
+    BoxLayout:
+        background_color: (.3, .3, .3, 1)
+        orientation: "vertical"
+        BoxLayout:
+            id: general_panel
+            size: 0, 50
+            size_hint: 1, None
+            Button:
+                text: "Start"
+                size: 75, 50
+                size_hint: None, None
+                on_press: app.start_solving();
+            Button:
+                text: "Stop"
+                size: 75, 50
+                size_hint: None, None
+                on_press: app.stop_solving()
+            Label:
+                size: 10, 0
+                size_hint: None, 1
+            Label:
+                text: "Sleep time (s): "
+                size: 120, 50
+                size_hint: None, None
+            TextInput:
+                id: sleep_interval_text_input
+                size:60, 30
+                size_hint: None, None
+                pos_hint: {"center_y": 0.5}
+                text: "0.02"
+            Label:
+                size: 10, 0
+                size_hint: None, 1
+            Label:
+                text: "Number of points: "
+                size: 135, 50
+                size_hint: None, None
+            TextInput:
+                id: number_of_points_text_input
+                size:60, 30
+                size_hint: None, None
+                pos_hint: {"center_y": 0.5}
+                text: "7"
+                on_text: root.ids.keep_points.state = "normal"
+            Label:
+                size: 5, 0
+                size_hint: None, 1
+            ToggleButton:
+                id: keep_points
+                state: "normal"
+                text: "Keep points"
+                size: 100, 50
+                size_hint: None, None
+            Label:
+                id: shortest_route_length_label
+                font_size: 20
+                size: 330, 0
+                size_hint: None, 1
+        BoxLayout:
+            id: genetic_panel
+            size: 0, 50
+            size_hint: 1, None
+            ToggleButton:
+                id: genetic_method
+                size: 100, 50
+                size_hint: None, None
+                text: "Genetic"
+                group: "method"
+                state: "normal"
+                on_press: app.set_method_bruteforce() if self.state != "down" else app.set_method_genetic()
+            Label:
+                size: 10, 50
+                size_hint: None, None
+            Label:
+                text: "Mutation chance: "
+                size: 135, 50
+                size_hint: None, None
+            TextInput:
+                id: mutation_chance_text_input
+                size:75, 30
+                size_hint: None, None
+                pos_hint: {"center_y": 0.5}
+                text: "0.025"
+            Label:
+                size: 20, 50
+                size_hint: None, None
+            Label:
+                text: "Reset chance: "
+                size: 110, 50
+                size_hint: None, None
+            TextInput:
+                id: reset_chance_text_input
+                size:75, 30
+                size_hint: None, None
+                pos_hint: {"center_y": 0.5}
+                text: "0.035"
+            Label:
+                text: ""
+                size: 150, 50
+                size_hint: None, None
+            Label
+                text: "Last action:"
+                halign: 'left'
+                valign: 'middle'
+                size: 100, 50
+                size_hint: None, None
+            Label:
+                id: last_action
+                text: ""
+                halign: 'left'
+                valign: 'middle'
+                size: 150, 50
+                size_hint: None, None
+        BoxLayout:
+            id: bruteforce_panel
+            size: 0, 50
+            size_hint: 1, None
+            ToggleButton:
+                id: bruteforce_method
+                size: 100, 50
+                size_hint: None, None
+                text: "Bruteforce"
+                group: "method"
+                state: "down"
+                on_press: app.set_method_bruteforce() if self.state == "down" else app.set_method_genetic()
+        BoxLayout:
+            size_hint: (1,1)
+            id: canvas_layout
