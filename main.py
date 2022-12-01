@@ -1,3 +1,4 @@
+""" Main module """
 import time
 import threading
 from kivy.clock import mainthread
@@ -13,10 +14,11 @@ from src.point import generate_new_random_point_list, generate_random_route
 
 
 class MainWindow(BoxLayout):
-    pass
+    """ Base window class """
 
 
 class TSPApp(App):
+    """ App class """
     sleep_interval = 0.05
     number_of_points = 7
     can_run = True
@@ -42,7 +44,8 @@ class TSPApp(App):
         """ stops app """
         TSPApp.stopping = True
 
-    def bruteforce_solving(self, points, starting_point: int = 0, current_route=None, sleep: float = 0, starter=True):
+    def bruteforce_solving(self, points, starting_point: int = 0,
+            current_route=None, sleep: float = 0, starter=True):
         """ Bruteforce solver """
         if len(points) < 2:
             self.draw_points(points)
@@ -71,7 +74,8 @@ class TSPApp(App):
                 current_route.append(point)
                 if TSPApp.stopping:
                     return False
-                result = self.bruteforce_solving(points, starting_point, current_route, sleep, False)
+                result = self.bruteforce_solving(points,
+                    starting_point, current_route, sleep, False)
                 if result is False:
                     if starter:
                         TSPApp.can_run = True
@@ -121,7 +125,8 @@ class TSPApp(App):
                             index += 1
                         new_route.append(new_route[0])
                         new_route_length = route_length(new_route)
-                        if new_route_length < route_length(route) or np.random.random() < mutation_chance:
+                        if new_route_length < route_length(route) or\
+                                np.random.random() < mutation_chance:
                             if new_route_length < route_length(route):
                                 self.main_window.ids.last_action.text = "New shortest route"
                             else:
@@ -152,7 +157,8 @@ class TSPApp(App):
         self.main_window.ids.canvas_layout.canvas.clear()
 
     @mainthread
-    def print_new_point(self, var_x: int = 0, var_y: int = 0, size=13, red=0.0, green=0.1, blue=0.0, alpha=1.0):
+    def print_new_point(self, var_x: int = 0, var_y: int = 0,
+            size=13, red=0.0, green=0.1, blue=0.0, alpha=1.0):
         """ draws a single point """
         center_x = int(self.main_window.ids.canvas_layout.size[0] / 2 - size / 2)
         center_y = int(self.main_window.ids.canvas_layout.size[1] / 2 - size / 2)
@@ -231,7 +237,8 @@ class TSPApp(App):
                 with self.main_window.ids.canvas_layout.canvas:
                     Label(
                         markup=True,
-                        text="[color=ff0000]Mutation chance must be a number between 0 and 1![/color]",
+                        text=
+                        "[color=ff0000]Mutation chance must be a number between 0 and 1![/color]",
                         pos=(
                             self.main_window.ids.canvas_layout.size[0] / 2 - 162,
                             self.main_window.ids.canvas_layout.size[1] - 40),
@@ -262,7 +269,8 @@ class TSPApp(App):
             var_x = int(self.main_window.ids.canvas_layout.size[0] / 2) - 20
             var_y = int(self.main_window.ids.canvas_layout.size[1] / 2) - 20
             if self.main_window.ids.keep_points.state == "normal" or TSPApp.points is None:
-                TSPApp.points = generate_new_random_point_list(-var_x, var_x, -var_y, var_y - 30, TSPApp.number_of_points)
+                TSPApp.points = generate_new_random_point_list(-var_x,
+                    var_x, -var_y, var_y - 30, TSPApp.number_of_points)
             if TSPApp.method_is_bruteforce:
                 TSPApp.thread = threading.Thread(
                     target=(lambda: self.bruteforce_solving(
@@ -350,7 +358,8 @@ class TSPApp(App):
 
     def draw_best_route_length(self):
         """ Changes best route label """
-        self.main_window.ids.shortest_route_length_label.text = "Shortest route length: {:.5f}".format(TSPApp.best_route_length)
+        self.main_window.ids.shortest_route_length_label.text =\
+            "Shortest route length: {:.5f}".format(TSPApp.best_route_length)
 
 
 Builder.load_file("kv_files/tsp_visualisation.kv")
